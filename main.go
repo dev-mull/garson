@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	colorable "github.com/mattn/go-colorable"
 )
 
 var (
@@ -22,9 +24,12 @@ var (
 	cyan         = string([]byte{27, 91, 57, 55, 59, 52, 54, 109})
 	reset        = string([]byte{27, 91, 48, 109})
 	disableColor = false
+	out          io.Writer
 )
 
 func main() {
+
+	out = colorable.NewColorableStdout()
 	port := flag.Int("port", 0, "optional port")
 	dir := flag.String("dir", "./", "directory to serve")
 	flag.Parse()
@@ -36,7 +41,7 @@ func main() {
 		panic(err)
 	}
 	r.Use(static.Serve("/", static.LocalFile(*dir, true)))
-	fmt.Printf("\n%sVoila!%s Serving on %s%v%s. Dir %s%v%s\n", green, reset, blue, listener.Addr(), reset, blue, *dir, reset)
+	fmt.Fprintf(out, "\n%sVoila!%s Serving on %s%v%s. Dir %s%v%s\n", green, reset, blue, listener.Addr(), reset, blue, *dir, reset)
 
 	log.Fatal(http.Serve(listener, r))
 }
@@ -68,7 +73,7 @@ func Logger() gin.HandlerFunc {
 			path = path + "?" + raw
 		}
 
-		fmt.Printf("%s[GARSON]%s %v |%s %3d %s| %13v | %15s |%s %-7s %s %s | %s\n%s",
+		fmt.Fprintf(out, "%s[GARSON]%s %v |%s %3d %s| %13v | %15s |%s %-7s %s %s | %s\n%s",
 			green, reset, end.Format("2006/01/02 - 15:04:05"),
 			statusColor, statusCode, resetColor,
 			latency,
