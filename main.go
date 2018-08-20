@@ -30,6 +30,7 @@ var (
 func main() {
 
 	out = colorable.NewColorableStdout()
+	gin.SetMode(gin.ReleaseMode)
 	port := flag.Int("port", 0, "optional port")
 	dir := flag.String("dir", "./", "directory to serve")
 	flag.Parse()
